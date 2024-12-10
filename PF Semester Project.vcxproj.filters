@@ -18,10 +18,10 @@
     <ClCompile Include="Level 3.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="sfml.cpp">
+    <ClCompile Include="Level 2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="animation.cpp">
+    <ClCompile Include="Level 1.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

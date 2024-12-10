@@ -133,9 +133,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Level 1.cpp" />
     <ClCompile Include="Level 3.cpp" />
-    <ClCompile Include="sfml.cpp" />
-    <ClCompile Include="animation.cpp" />
+    <ClCompile Include="Level 2.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

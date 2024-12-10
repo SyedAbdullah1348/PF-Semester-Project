@@ -9,186 +9,204 @@
 using namespace std;
 using namespace sf;
 
+bool resume = false, gameOver = false ,moveToMenu = true;
+VideoMode desktopMode = VideoMode::getDesktopMode();
 
-int main()
+
+
+bool MainMenu()
 {
-    VideoMode desktopMode = VideoMode::getDesktopMode();
-    RenderWindow gameplay(VideoMode(1160, 680), "The Maze Runner : Level 3", Style::Default);
-    gameplay.setFramerateLimit(60);
+    //Main menu
+
+    RenderWindow mainMenu(VideoMode(1160, 680), "Main Menu", Style::Default);
+   
+    mainMenu.setFramerateLimit(60);
 
     //Auto maximise
-    gameplay.setSize(Vector2u(desktopMode.width - 2, desktopMode.height - 39));
-    gameplay.setPosition(Vector2i(-7, -33));
-    //Audio
-    SoundBuffer bgB, fireB, sizzleB, spikeB, jumpB, gameoverB, pauseB, c;
+    mainMenu.setSize(Vector2u(desktopMode.width - 2, desktopMode.height - 39));
+    mainMenu.setPosition(Vector2i(-7, -33));
 
-    bgB.loadFromFile("audio/melancholia.mp3");
-    fireB.loadFromFile("audio/fire.mp3");
-    sizzleB.loadFromFile("audio/sizzle.mp3");
-    spikeB.loadFromFile("audio/spike.mp3");
-    jumpB.loadFromFile("audio/jump2.mp3");
-    gameoverB.loadFromFile("audio/gameover.mp3");
-    pauseB.loadFromFile("audio/pause.mp3");
-    c.loadFromFile("audio/coin.mp3");
+    //Font
+    Font font;
+    font.loadFromFile("KnightWarrior.otf");
 
 
-    Sound bgS, fireS, sizzleS, spikeS, jumpS, gameoverS, pauseS, coin;
+    RectangleShape background1(Vector2f(desktopMode.width, desktopMode.height));
+    Texture bg;
+    bg.loadFromFile("bg3.jpg");
+    background1.setTexture(&bg);
 
-    bgS.setBuffer(bgB);
-    fireS.setBuffer(fireB);
-    sizzleS.setBuffer(sizzleB);
-    spikeS.setBuffer(spikeB);
-    jumpS.setBuffer(jumpB);
-    gameoverS.setBuffer(gameoverB);
-    pauseS.setBuffer(pauseB);
-    coin.setBuffer(c);
 
-    int score = 0;
-    float startX = 37.5f, startY = 600.f;
-    bool resume = false;
+    string line;
+    ifstream level3("Level 3.txt");
+    level3 >> line;
+    level3.close();
 
-    bool movetomenu = true;
-    while (movetomenu = true)
+    // Audio
+    SoundBuffer mm;
+    Sound main;
+    mm.loadFromFile("audio/lulllaby.mp3");
+    main.setBuffer(mm);
+
+    main.play();
+    main.setLoop(true);
+
+    Text title, resumeP, sng, controls, exitG;
+
+    //Title
+    title.setFont(font);
+    title.setCharacterSize(70);
+    title.setPosition(180.f, 100.f);
+    title.setString("Shadow Runners");
+    title.setFillColor(Color::Red);
+
+    //Resume
+    resumeP.setFont(font);
+    resumeP.setCharacterSize(25);
+    resumeP.setPosition(180.f, 300.f);
+    resumeP.setString("Press R to resume from previous save");
+
+    //Start new game
+    sng.setFont(font);
+    sng.setCharacterSize(25);
+    sng.setPosition(180.f, 400.f);
+    sng.setString("Press Enter to Start New Game");
+
+    //Controls
+    controls.setFont(font);
+    controls.setCharacterSize(25);
+    controls.setPosition(180.f, 500.f);
+    controls.setString("Press C to show controls");
+
+    //Exit
+    exitG.setFont(font);
+    exitG.setCharacterSize(25);
+    exitG.setPosition(180.f, 600.f);
+    exitG.setString("Press Esc to exit");
+
+    while (mainMenu.isOpen())
     {
-        //Main menu
-       
-        RenderWindow mainMenu(VideoMode(1160, 680), "Main Menu", Style::Default);
-        mainMenu.setFramerateLimit(60);
+        Event evnt;
+        while (mainMenu.pollEvent(evnt))
+        {
+            if (evnt.type == Event::Closed)
+            {
+                return false;
+            }
+            if (Keyboard::isKeyPressed(Keyboard::Key::Escape))
+            {
+               return false;
+            }
+            else if (Keyboard::isKeyPressed(Keyboard::Key::Enter))
+            {
+                mainMenu.close();
+                main.stop();
+                return true;
+            }
+            else if (Keyboard::isKeyPressed(Keyboard::Key::R))
+            {
 
-        //Auto maximise
-        mainMenu.setSize(Vector2u(desktopMode.width - 2, desktopMode.height - 39));
-        mainMenu.setPosition(Vector2i(-7, -33));
+                if (line == "1")
+                {
+                    resume = true;
+                    mainMenu.close();
+                    main.stop();
+                    return true;
+                }
+                else
+                    resume = false;
+            }
+            else if (Keyboard::isKeyPressed(Keyboard::Key::C))
+            {
+
+                bool openC = true;
+                Texture c;
+                RectangleShape control(Vector2f(306.f, 700.f));
+                control.setPosition(100.f, 50.f);
+                c.loadFromFile("controls.jpg");
+                control.setTexture(&c);
+                while (openC == true)
+                {
+                    mainMenu.clear();
+                    mainMenu.draw(background1);
+                    mainMenu.draw(control);
+                    mainMenu.display();
+                    if (Keyboard::isKeyPressed(Keyboard::Key::E))
+                    {
+                        openC = false;
+                    }
+                }
+            }
+        }
+
+
+
+        mainMenu.clear();
+        mainMenu.draw(background1);
+        mainMenu.draw(title);
+        if (line == "1")
+        {
+            mainMenu.draw(resumeP);
+        }
+        mainMenu.draw(sng);
+        mainMenu.draw(controls);
+        mainMenu.draw(exitG);
+        mainMenu.display();
+    }
+}
+
+bool Level3()
+{
+    
+
+    while (moveToMenu == true)
+    {
+        gameOver = false;
+        bool shouldBreak = false;
 
         //Font
         Font font;
         font.loadFromFile("KnightWarrior.otf");
 
-        RectangleShape background1(Vector2f(desktopMode.width, desktopMode.height));
-        Texture bg;
-        bg.loadFromFile("bg3.jpg");
-        background1.setTexture(&bg);
-        
-        //Display resume text tracker
+        RenderWindow gameplay(VideoMode(1160, 680), "The Maze Runner : Level 3", Style::Default);
+        gameplay.setFramerateLimit(60);
 
-        string line;
-        ifstream level3("Level 3.txt");
-        level3 >> line;
-        level3.close();
+        //Auto maximise
+        gameplay.setSize(Vector2u(desktopMode.width - 2, desktopMode.height - 39));
+        gameplay.setPosition(Vector2i(-7, -33));
+        //Audio
+        SoundBuffer bgB, fireB, sizzleB, spikeB, jumpB, gameoverB, pauseB, c;
 
-        // Audio
-        SoundBuffer mm;
-        Sound main;
-        mm.loadFromFile("audio/lulllaby.mp3");
-        main.setBuffer(mm);
-
-        main.play();
-        main.setLoop(true);
-
-        Text title, resumeP, sng, controls, exitG;
-
-        //Title
-        title.setFont(font);
-        title.setCharacterSize(70);
-        title.setPosition(180.f, 100.f);
-        title.setString("Shadow Runners");
-        title.setFillColor(Color::Red);
-
-        //Resume
-        resumeP.setFont(font);
-        resumeP.setCharacterSize(25);
-        resumeP.setPosition(180.f, 300.f);
-        resumeP.setString("Press R to resume from previous save");
-
-        //Start new game
-        sng.setFont(font);
-        sng.setCharacterSize(25);
-        sng.setPosition(180.f, 400.f);
-        sng.setString("Press Enter to Start New Game");
-
-        //Controls
-        controls.setFont(font);
-        controls.setCharacterSize(25);
-        controls.setPosition(180.f, 500.f);
-        controls.setString("Press C to show controls");
-
-        //Exit
-        exitG.setFont(font);
-        exitG.setCharacterSize(25);
-        exitG.setPosition(180.f, 600.f);
-        exitG.setString("Press Esc to exit");
-
-        while (mainMenu.isOpen() && resume == false)
-        {
-            Event evnt;
-            while (mainMenu.pollEvent(evnt))
-            {
-                if (evnt.type == Event::Closed)
-                {
-                    return 0;
-                }
-                if (Keyboard::isKeyPressed(Keyboard::Key::Escape))
-                {
-                    return 0;
-                }
-                else if (Keyboard::isKeyPressed(Keyboard::Key::Enter))
-                {
-                    mainMenu.close();
-                    main.stop();
-                }
-                else if (Keyboard::isKeyPressed(Keyboard::Key::R))
-                {
-                    
-                    if (line == "1")
-                    {
-                        resume = true;
-                        mainMenu.close();
-                        main.stop();
-                    }
-                }
-                else if (Keyboard::isKeyPressed(Keyboard::Key::C))
-                {
-
-                    bool openC = true;
-                    Texture c;
-                    RectangleShape control(Vector2f(306.f,700.f));
-                    control.setPosition(100.f, 50.f);
-                    c.loadFromFile("controls.jpg");
-                    control.setTexture(&c);
-                    while (openC == true)
-                    {
-                        mainMenu.clear();
-                        mainMenu.draw(background1);
-                        mainMenu.draw(control);
-                        mainMenu.display();
-                        if (Keyboard::isKeyPressed(Keyboard::Key::E))
-                        {
-                            openC = false;
-                        }
-                    }
-                }
-            }
+        bgB.loadFromFile("audio/melancholia.mp3");
+        fireB.loadFromFile("audio/fire.mp3");
+        sizzleB.loadFromFile("audio/sizzle.mp3");
+        spikeB.loadFromFile("audio/spike.mp3");
+        jumpB.loadFromFile("audio/jump2.mp3");
+        gameoverB.loadFromFile("audio/gameover.mp3");
+        pauseB.loadFromFile("audio/pause.mp3");
+        c.loadFromFile("audio/coin.mp3");
 
 
+        Sound bgS, fireS, sizzleS, spikeS, jumpS, gameoverS, pauseS, coin;
 
-            mainMenu.clear();
-            mainMenu.draw(background1);
-            mainMenu.draw(title);
-            if (line == "1")
-            {
-                mainMenu.draw(resumeP);
-            }
-            mainMenu.draw(sng);
-            mainMenu.draw(controls);
-            mainMenu.draw(exitG);
-            mainMenu.display();
-        }
+        bgS.setBuffer(bgB);
+        fireS.setBuffer(fireB);
+        sizzleS.setBuffer(sizzleB);
+        spikeS.setBuffer(spikeB);
+        jumpS.setBuffer(jumpB);
+        gameoverS.setBuffer(gameoverB);
+        pauseS.setBuffer(pauseB);
+        coin.setBuffer(c);
+
+        int score = 0;
+        float startX = 37.5f, startY = 600.f;
 
 
         // Declarations
 
         int lives = 3;
         cout << "You have " << lives << " lives remaining." << endl;
-        
+
         cout << gameplay.getSize().x << endl;
 
 
@@ -196,8 +214,7 @@ int main()
         RectangleShape maze[17][29];
         RectangleShape collectible[17][29];
 
-        //Gameover flag
-        bool gameOver = false;
+
 
 
 
@@ -210,7 +227,7 @@ int main()
         pl.loadFromFile("sprite.png");
         player.setTexture(pl);
         float height = 320, width = 212.75;
-        player.setTextureRect(IntRect(0.f, height* 3, width, height));
+        player.setTextureRect(IntRect(0.f, height * 3, width, height));
         player.setScale(30 / width, 30 / height);
 
 
@@ -219,6 +236,8 @@ int main()
 
         //Set Textures
         Texture brick, grass, stFlag, endflag, fireTrap, bg1, spTrap, torch, flameTexture, sk;
+        Texture bg;
+        bg.loadFromFile("bg3.jpg");
         brick.loadFromFile("black2.jpg");
         grass.loadFromFile("red.jpg");
         stFlag.loadFromFile("go.png");
@@ -254,10 +273,10 @@ int main()
 
 
         // Load maze from file
-        ifstream file("maze.txt");
-        for (int i = 0; i < 17; i++) 
+        ifstream file("maze3.txt");
+        for (int i = 0; i < 17; i++)
         {
-            for (int j = 0; j < 29; j++) 
+            for (int j = 0; j < 29; j++)
             {
                 file >> arr[i][j];
             }
@@ -266,29 +285,29 @@ int main()
 
 
         // Initialize maze tiles
-        for (int i = 0; i < 17; i++) 
+        for (int i = 0; i < 17; i++)
         {
-            for (int j = 0; j < 29; j++) 
+            for (int j = 0; j < 29; j++)
             {
-                if (arr[i][j] == 'w') 
+                if (arr[i][j] == 'w')
                 {
                     maze[i][j] = wall;
                 }
-                else if (arr[i][j] == 'f') 
+                else if (arr[i][j] == 'f')
                 {
                     maze[i][j] = floor;
                     if (i % 2 == 0 || j % 2 == 0)
                     {
                         collectible[i][j] = skull;
                         collectible[i][j].setPosition(j * 40 + 10, i * 40 + 10);
-                        collectible[i][j].setScale(0.5,0.5);
+                        collectible[i][j].setScale(0.5, 0.5);
                     }
                 }
-                else if (arr[i][j] == 's') 
+                else if (arr[i][j] == 's')
                 {
                     maze[i][j] = start;
                 }
-                else if (arr[i][j] == 'e') 
+                else if (arr[i][j] == 'e')
                 {
                     maze[i][j] = end;
                 }
@@ -303,7 +322,7 @@ int main()
             }
         }
 
-        
+
 
         //Trap trackers
         int thisTrap = 0;
@@ -328,7 +347,7 @@ int main()
         //Pause time
         Time pauseTime = Time::Zero; //Total accumulated pause time
 
-        
+
 
         bgS.play();
         fireS.play();
@@ -337,8 +356,8 @@ int main()
         float prevTime = 0;
         string highscore = "0";
 
+        string line;
 
-        
         ifstream levels3("Level 3.txt");
         levels3 >> line;
         levels3 >> highscore;
@@ -361,7 +380,7 @@ int main()
             player.setPosition(startX, startY);
         }
         levels3.close();
-        
+
 
         //Main loop
         while (gameplay.isOpen() && gameOver == false)
@@ -390,8 +409,7 @@ int main()
                     }
                     level3.close();
                     gameplay.close();
-                    movetomenu = false;
-                    return 0;
+                    return false;
                 }
                 if (Keyboard::isKeyPressed(Keyboard::Key::Escape))
                 {
@@ -412,7 +430,7 @@ int main()
                     }
                     level3.close();
                     gameplay.close();
-                    return 0;
+                    return false;
                 }
             }
 
@@ -739,9 +757,10 @@ int main()
                         {
                             ofstream level3("Level 3.txt");
                             level3 << "0" << endl;
+                            level3 << highscore << endl;
                             level3.close();
                             endgame.close();
-                            return 0;
+                            return false;
                         }
 
                     }
@@ -751,9 +770,8 @@ int main()
                         level3 << "0" << endl;
                         level3.close();
                         gameOver = true;
-                        movetomenu = false;
                         endgame.close();
-                        return 0;
+                        return false;
                     }
                     else if (Keyboard::isKeyPressed(Keyboard::Key::R))
                     {
@@ -787,7 +805,10 @@ int main()
                         level3.close();
                         endgame.close();
                         gameplay.close();
-                        movetomenu = true;
+                        resume = false;
+                        shouldBreak = MainMenu();
+                        moveToMenu = true;
+                        break;
                     }
                     endgame.clear();
                     endgame.draw(background);
@@ -797,6 +818,11 @@ int main()
                     endgame.draw(exit);
                     endgame.display();
                 }
+            }
+
+            if (shouldBreak == true)
+            {
+                break;
             }
 
             //Collectibles
@@ -906,13 +932,13 @@ int main()
                 winS.setBuffer(winB);
                 bgS.stop();
                 winS.play();
-                
+
 
                 // Dialogue lines
-                vector<string> dialogues = 
+                vector<string> dialogues =
                 {
                     "You really thought you could win? How pathetic.",
-                    "I’ve watched you stumble through my maze.", 
+                    "I’ve watched you stumble through my maze.",
                     "Clinging to the foolish belief that you could outsmart me.",
                     "But every step you took, every choice you made.",
                     "It all led here.",
@@ -986,7 +1012,7 @@ int main()
                     win.display();
                 }
 
-                return 0;
+                return false;
             }
 
 
@@ -1097,7 +1123,7 @@ int main()
                             level3.close();
                             gameplay.close();
                             pause.close();
-                            return 0;
+                            return false;
                         }
                         else if (Keyboard::isKeyPressed(Keyboard::Key::Enter))
                         {
@@ -1114,6 +1140,7 @@ int main()
                             player.setPosition(37.5f, 600.f);
                             clock.restart();
                             pause.close();
+                            pauseClock.restart();
                             resume = false;
                             score = 0;
 
@@ -1151,8 +1178,14 @@ int main()
                             level3.close();
                             gameplay.close();
                             pause.close();
-                            movetomenu = true;
+                            shouldBreak = MainMenu();
+                            break;
                         }
+                    }
+
+                    if (shouldBreak == true)
+                    {
+                        break;
                     }
 
                     pause.clear();
@@ -1167,6 +1200,20 @@ int main()
             }
         }
     }
+}
 
+int main()
+{
+    bool isStart = true;
+    isStart = MainMenu();
+    while (isStart == true)
+    {
+        isStart = Level3();
+
+        if (isStart == false)
+        {
+            cout << "GAYYYYYYYYYYYYYYY" << endl;
+        }
+    }
     return 0;
 }
