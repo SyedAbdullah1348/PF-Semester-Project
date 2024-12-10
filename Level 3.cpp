@@ -12,7 +12,7 @@ using namespace sf;
 bool resume = false, gameOver = false ,moveToMenu = true;
 VideoMode desktopMode = VideoMode::getDesktopMode();
 
-
+ nigga
 
 bool MainMenu()
 {
