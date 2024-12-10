@@ -135,6 +135,7 @@
   <ItemGroup>
     <ClCompile Include="Level 1.cpp" />
     <ClCompile Include="Level 3.cpp" />
+    <ClCompile Include="Shadow Runners.cpp" />
     <ClCompile Include="Level 2.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
