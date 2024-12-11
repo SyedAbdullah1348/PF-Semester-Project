@@ -12,6 +12,7 @@ using namespace sf;
 int const r = 25;
 int const c = 30;
 char arr[r][c];
+
 float tilesize = 20;
 //-------------------------------------------------------------
 //-------------------------------------------------------------
@@ -41,21 +42,8 @@ void readdata2D() {
         }
     }
 }
-void MazeMaking(RenderWindow& window, RectangleShape& rect, Texture& backTex) {
-    for (int i = 0; i < r; i++) {
-        for (int j = 0; j < c; j++) {
-            if (arr[i][j] == 'a') {
-                rect.setFillColor(Color(105, 105, 105));
-                rect.setTexture(nullptr);
-            }
-            else {
-                rect.setTexture(&backTex);
-            }
-            rect.setPosition(j * tilesize, i * tilesize);
-            window.draw(rect);
-        }
-    }
-}
+
+
 bool checkCollisionwithwalls(const FloatRect& playerBounds) {
     for (int i = 0; i < r; i++) {
         for (int j = 0; j < c; j++) {
@@ -70,7 +58,7 @@ bool checkCollisionwithwalls(const FloatRect& playerBounds) {
     return false;
 }
 
-bool resume1 = false, resume2 = false, resume3 = false, gameOver = false ,moveToMenu = true;
+bool resume1 = false, resume2 = false, resume3 = false, gameOver = false, moveToMenu = true, gameStarted = false;
 
 VideoMode desktopMode = VideoMode::getDesktopMode();
 
@@ -80,7 +68,7 @@ bool MainMenu()
     //Main menu
 
     RenderWindow mainMenu(VideoMode(1160, 680), "Main Menu", Style::Default);
-   
+
     mainMenu.setFramerateLimit(60);
 
     //Auto maximise
@@ -157,10 +145,11 @@ bool MainMenu()
             }
             if (Keyboard::isKeyPressed(Keyboard::Key::Escape))
             {
-               return false;
+                return false;
             }
             else if (Keyboard::isKeyPressed(Keyboard::Key::Enter))
             {
+
                 mainMenu.close();
                 main.stop();
                 return true;
@@ -224,6 +213,8 @@ bool MainMenu()
         mainMenu.draw(exitG);
         mainMenu.display();
     }
+
+    gameStarted = true;
 }
 
 
@@ -304,12 +295,12 @@ bool Level1()
             for (int j = 0; j < 17; j++)
             {
                 file >> arr[i][j];
-                cout << arr[i][j] << " ";
+                //cout << arr[i][j] << " ";
             }
-            cout << endl;
+            //cout << endl;
         }
 
-        cout << "Collectibles" << endl;
+        //cout << "Collectibles" << endl;
         //COLLECTIBLES
         string line1;
         ifstream filecollect;
@@ -319,9 +310,9 @@ bool Level1()
             for (int j = 0; j < 17; j++)
             {
                 filecollect >> collectibles[i][j];
-                cout << collectibles[i][j] << " ";
+                //cout << collectibles[i][j] << " ";
             }
-            cout << endl;
+            //cout << endl;
         }
 
         // Sounds
@@ -395,8 +386,20 @@ bool Level1()
         int score = 0;
         text.setString("Current Score : " + to_string(score));
 
+        //Jump variables
+
+        bool isJumping = false;
+        Vector2f startPos;
+        Vector2f targetPos;
+        float jumpProgress = 0.0f;
+        bool ignoreSpike = false;
+        int playerX;
+        int playerY;
+
+
         //Clock timer
         Clock clock;
+        Clock jumpClock;
         Time time;
 
         //Pause time
@@ -421,9 +424,9 @@ bool Level1()
             for (int i = 0; i < 17; i++) {
                 for (int j = 0; j < 17; j++) {
                     levels1 >> collectibles[i][j];
-                    cout << collectibles[i][j];
+                    // cout << collectibles[i][j];
                 }
-                cout << endl;
+                //cout << endl;
             }
             pl.setPosition(startX, startY);
         }
@@ -522,51 +525,51 @@ bool Level1()
                         }
                     }
 
-                    //Jump
-                    int jump = false;
-                    if (Keyboard::isKeyPressed(Keyboard::Space))
-                    {
-                        jump = true;
+                    ////Jump
+                    //int jump = false;
+                    //if (Keyboard::isKeyPressed(Keyboard::Space))
+                    //{
+                    //    jump = true;
 
-                    }
-                    if (arr[i][j] == 'p')
-                    {
-                        float hurdleleft = maze[i][j].getPosition().x;
-                        float hurdleright = hurdleleft + 40.f;
-                        float hurdletop = maze[i][j].getPosition().y;
-                        float hurdlebottom = hurdletop + 40.f;
+                    //}
+                    //if (arr[i][j] == 'p')
+                    //{
+                    //    float hurdleleft = maze[i][j].getPosition().x;
+                    //    float hurdleright = hurdleleft + 40.f;
+                    //    float hurdletop = maze[i][j].getPosition().y;
+                    //    float hurdlebottom = hurdletop + 40.f;
 
 
-                        if (jump == true)
-                        {
-                            jumpS.play();
-                        }
+                    //    if (jump == true)
+                    //    {
+                    //        jumpS.play();
+                    //    }
 
-                        if ((playerright > hurdleleft && playerleft < hurdleright && playertop < hurdlebottom && playerbottom > hurdletop) && jump == false)
-                        {
-                            int count = 0;
+                    //    if ((playerright > hurdleleft && playerleft < hurdleright && playertop < hurdlebottom && playerbottom > hurdletop) && jump == false)
+                    //    {
+                    //        int count = 0;
 
-                            if (playerright > hurdleleft && playerleft < hurdleleft)
-                            {
-                                right = false;
-                            }
-                            if (playerleft < hurdleright && playerright > hurdleright)
-                            {
-                                left = false;
-                            }
-                            if (playerbottom > hurdletop && playertop < hurdletop)
-                            {
+                    //        if (playerright > hurdleleft && playerleft < hurdleleft)
+                    //        {
+                    //            right = false;
+                    //        }
+                    //        if (playerleft < hurdleright && playerright > hurdleright)
+                    //        {
+                    //            left = false;
+                    //        }
+                    //        if (playerbottom > hurdletop && playertop < hurdletop)
+                    //        {
 
-                                down = false;
-                            }
-                            if (playertop < hurdlebottom && playerbottom > hurdlebottom)
-                            {
+                    //            down = false;
+                    //        }
+                    //        if (playertop < hurdlebottom && playerbottom > hurdlebottom)
+                    //        {
 
-                                up = false;
-                            }
-                        }
+                    //            up = false;
+                    //        }
+                    //    }
 
-                    }
+                    //}
 
                     if (pl.getPosition().x + 20 >= 660 && pl.getPosition().y + 20 >= 140)
                     {
@@ -579,6 +582,73 @@ bool Level1()
                     }
                 }
             }
+
+
+
+            //Jump functionality
+
+
+
+            Time jumpTime = jumpClock.getElapsedTime();
+
+
+            if (isJumping == false && jumpTime.asSeconds() > 0.5 && Keyboard::isKeyPressed(Keyboard::Key::Space))
+            {
+                jumpClock.restart();
+                jumpS.play();
+
+                playerX = (pl.getPosition().x + 15) / 40;
+                playerY = (pl.getPosition().y + 30) / 40;
+                startPos = pl.getPosition();
+
+                if (arr[playerY][playerX - 1] == 'p' && playerX > 0)
+                {
+                    jumpS.play();
+                    targetPos = startPos + Vector2f(-80.f, 0.f);
+                    isJumping = true;
+                    ignoreSpike = true;
+                }
+                else if (arr[playerY][playerX + 1] == 'p' && playerX < 28)
+                {
+                    jumpS.play();
+                    targetPos = startPos + Vector2f(80.f, 0.f);
+                    isJumping = true;
+                    ignoreSpike = true;
+                }
+                else if (arr[playerY + 1][playerX] == 'p' && playerY < 16)
+                {
+                    jumpS.play();
+                    targetPos = startPos + sf::Vector2f(0.f, 80.f);
+                    isJumping = true;
+                    ignoreSpike = true;
+                }
+                else if (arr[playerY - 1][playerX] == 'p' && playerY > 0)
+                {
+                    jumpS.play();
+                    targetPos = startPos + sf::Vector2f(0.f, -80.f);
+                    isJumping = true;
+                    ignoreSpike = true;
+                }
+
+                jumpProgress = 0.0f;
+            }
+
+            if (isJumping)
+            {
+                jumpProgress += 0.05f;
+
+                if (jumpProgress >= 1.0f)
+                {
+                    jumpProgress = 1.0f;
+                    isJumping = false;
+                    ignoreSpike = false;
+                }
+
+
+                Vector2f newPos = startPos + (targetPos - startPos) * jumpProgress;
+                pl.setPosition(newPos);
+            }
+
 
             //COLLECTIBLES COLLISION AND SCORE
             for (int i = 0; i < 17; i++)
@@ -762,9 +832,9 @@ bool Level1()
 
                             //Re-initialize collectbles
 
-                            for (int i = 0;i < 17;i++)
+                            for (int i = 0; i < 17; i++)
                             {
-                                for (int j = 0;j < 17;j++)
+                                for (int j = 0; j < 17; j++)
                                 {
                                     if (collectibles[i][j] == 'z')
                                     {
@@ -820,7 +890,7 @@ bool Level1()
 
         }
     }
-    
+
 }
 
 bool Level2()
@@ -828,6 +898,8 @@ bool Level2()
     while (moveToMenu == true)
 
     {
+
+
         bool shouldBreak = false;
         float startX = 0, startY = 0;
 
@@ -864,10 +936,10 @@ bool Level2()
         const float fireOnDuration = 2.0f;  // Fire active for 2 seconds
         const float fireOffDuration = 2.0f; // No fire for 2 seconds
 
-       
+
         // Clock for delta time
         Clock clock;
-       
+
         //player
         /*CircleShape player;
         player.setRadius(tilesize / 2);
@@ -899,13 +971,41 @@ bool Level2()
         box.setOutlineThickness(2);
         readdata2D();
 
-        //---------------------------------------------------------
-        //background image 
+
+        RectangleShape maze2[r][c];
         Texture grass;
         grass.loadFromFile("Textures/blood.jpg");
-        Sprite grassb;
-        grassb.setTexture(grass);
-        grassb.setScale((float)(c * tilesize) / grass.getSize().x, (float)(r * tilesize) / grass.getSize().y);
+        RectangleShape grassb(Vector2f(tilesize, tilesize));
+        grassb.setTexture(&grass);
+
+        for (int i = 0; i < r; i++)
+        {
+            for (int j = 0; j < c; j++)
+            {
+                maze2[i][j].setSize(Vector2f(tilesize, tilesize));
+                if (arr[i][j] == 'a') {
+                    maze2[i][j] = box;
+                    maze2[i][j].setFillColor(Color(105, 105, 105));
+                    maze2[i][j].setTexture(nullptr);
+                }
+                else {
+                    maze2[i][j] = grassb;
+                    maze2[i][j].setOutlineColor(Color::Black);
+                    maze2[i][j].setOutlineThickness(2);
+                }
+                maze2[i][j].setPosition(j * tilesize, i * tilesize);
+            }
+
+        }
+
+
+        //---------------------------------------------------------
+        //background image 
+        /*Texture grass;
+        grass.loadFromFile("Textures/blood.jpg");
+        RectangleShape grassb;
+        grassb.setTexture(&grass);
+        grassb.setScale((float)(c * tilesize) / grass.getSize().x, (float)(r * tilesize) / grass.getSize().y);*/
 
         //-----------------------------------------------
         Texture net;
@@ -973,37 +1073,16 @@ bool Level2()
         Sound pauseS;
         pauseS.setBuffer(pauseB);
 
-        //-----------------------------------------------
-        //-----------------------------------------------
-        Texture skullcoins;
-        skullcoins.loadFromFile("Textures/skullcoin2.png");
-        vector<Sprite>coins;
-        vector<Vector2f>coinpos = {
-            {16 * tilesize - 3, 12 * tilesize - 3},
-            {6 * tilesize - 3, 6 * tilesize - 3},
-            {1 * tilesize - 3, 12 * tilesize - 3},
-            {1 * tilesize - 3, 21 * tilesize - 3},
-            {9 * tilesize - 3, 14 * tilesize - 3},
-            {23 * tilesize - 3, 22 * tilesize - 3},
-            {18 * tilesize - 3, 6 * tilesize - 3},
-            {9 * tilesize - 3, 23 * tilesize - 3},
-            {10 * tilesize - 3, 4 * tilesize - 3},
-            {28 * tilesize - 3, 12 * tilesize - 3},
-            {25 * tilesize - 3, 6 * tilesize - 3}
-        };
-        for (const auto& pos : coinpos) {
-            Sprite coin;
-            coin.setTexture(skullcoins);
-            coin.setScale((float)(1.3 * tilesize) / skullcoins.getSize().x, (float)(1.3 * tilesize) / skullcoins.getSize().y);
-            coin.setPosition(pos);
-            coins.push_back(coin);
-        }
+
+
         //-----------------------------------------------------------
         //------------------------------------------------------
-        Texture key;
-        key.loadFromFile("Textures/key.png");
-        vector<Sprite>keyss;
-        vector<Vector2f>keypos = {
+
+
+
+
+
+        /*vector<Vector2f>keypos = {
             {10 * tilesize - 3, 19 * tilesize - 3},
             {18 * tilesize - 3, 3 * tilesize - 3},
             {28 * tilesize - 3, 1 * tilesize - 3}
@@ -1014,7 +1093,7 @@ bool Level2()
             keyb.setScale((float)(1.1 * tilesize) / key.getSize().x, (float)(1.1 * tilesize) / key.getSize().y);
             keyb.setPosition(kpos);
             keyss.push_back(keyb);
-        }
+        }*/
 
 
         //-------------------------------------------------------
@@ -1101,6 +1180,9 @@ bool Level2()
         //---------------------------------------------------
         Clock timer;
 
+
+
+
         //Resume functionality
         float prevTime = 0;
         string highscore = "0";
@@ -1110,24 +1192,158 @@ bool Level2()
         ifstream levels2("Level 2.txt");
         levels2 >> highscore;
 
+        //COLLECTIBLES
+
+
+
+        char collectibles[r][c];
+
+        char keyss[r][c];
+
         if (resume2 == true)
         {
             levels2 >> playerscore; // Load score
+            levels2 >> lives;  // Load lives
             levels2 >> startX; // Load player X position
             levels2 >> startY; // Load player Y position
             levels2 >> prevTime; // Load previous time
 
             // Load the maze array
-            for (int i = 0; i < 17; i++)
+            for (int i = 0; i < r; i++)
             {
-                for (int j = 0; j < 29; j++)
+                for (int j = 0; j < c; j++)
                 {
-                    levels2 >> arr[i][j];
+                    levels2 >> collectibles[i][j];
+                }
+            }
+            for (int i = 0; i < r; i++)
+            {
+                for (int j = 0; j < c; j++)
+                {
+                    levels2 >> keyss[i][j];
                 }
             }
             playerS.setPosition(startX, startY);
         }
+        else
+        {
+            ifstream cFile("collectibles.txt");
+            for (int i = 0;i < r;i++)
+            {
+                for (int j = 0;j < c;j++)
+                {
+                    cFile >> collectibles[i][j];
+                }
+            }
+            cFile.close();
+
+            ifstream kFile("keys.txt");
+            for (int i = 0;i < r;i++)
+            {
+                for (int j = 0;j < c;j++)
+                {
+                    kFile >> keyss[i][j];
+                }
+            }
+            kFile.close();
+
+        }
         levels2.close();
+
+
+        //-----------------------------------------------
+        //-----------------------------------------------
+
+        //COINS
+
+        Texture skullcoins;
+        skullcoins.loadFromFile("Textures/skullcoin2.png");
+
+        RectangleShape skullC(Vector2f(tilesize, tilesize));
+        skullC.setTexture(&skullcoins);
+
+        RectangleShape Scoin[r][c];
+
+        for (int i = 0;i < r;i++)
+        {
+            for (int j = 0;j < c;j++)
+            {
+                if (collectibles[i][j] == 'c')
+                {
+                    Scoin[i][j] = skullC;
+                    Scoin[i][j].setPosition(j * tilesize - 3, i * tilesize - 3);
+                }
+            }
+        }
+
+        //KEYS
+
+
+        Texture keyT;
+        keyT.loadFromFile("Textures/key.png");
+
+        RectangleShape key(Vector2f(tilesize, tilesize));
+        key.setTexture(&keyT);
+
+        RectangleShape keyArr[r][c];
+
+        for (int i = 0;i < r;i++)
+        {
+            for (int j = 0;j < c;j++)
+            {
+                if (keyss[i][j] == 'k')
+                {
+                    keyArr[i][j] = key;
+                    keyArr[i][j].setPosition(j * tilesize - 3, i * tilesize - 3);
+                }
+            }
+        }
+
+
+        /*Vector2f coinpos[11] = {
+            {16 * tilesize - 3, 12 * tilesize - 3},
+            {6 * tilesize - 3, 6 * tilesize - 3},
+            {1 * tilesize - 3, 12 * tilesize - 3},
+            {1 * tilesize - 3, 21 * tilesize - 3},
+            {9 * tilesize - 3, 14 * tilesize - 3},
+            {23 * tilesize - 3, 22 * tilesize - 3},
+            {18 * tilesize - 3, 6 * tilesize - 3},
+            {9 * tilesize - 3, 23 * tilesize - 3},
+            {10 * tilesize - 3, 4 * tilesize - 3},
+            {28 * tilesize - 3, 12 * tilesize - 3},
+            {25 * tilesize - 3, 6 * tilesize - 3}
+        };*/
+
+
+
+
+
+
+        //for (const auto& pos : coinpos) {
+        //    Sprite coin;
+        //    coin.setTexture(skullcoins);
+        //    coin.setScale((float)(1.3 * tilesize) / skullcoins.getSize().x, (float)(1.3 * tilesize) / skullcoins.getSize().y);
+        //    collectibles[(int)((pos.y + 3) / tilesize)][(int)((pos.x + 3) / tilesize)] = 'c';
+        //    for (int i = 0; i < r; i++)
+        //    {
+        //        for (int j = 0; j < c; j++)
+        //        {
+        //            if (collectibles[i][j] == 'c')
+        //            {
+        //                coin.setPosition(pos);
+        //            }
+        //            else if (collectibles[i][j] == 'a')
+        //                coin.setPosition(-100, -100);
+        //        }
+        //    }
+        //    //coin.setPosition(pos);
+        //    //collectibles[(int)((pos.y + 3) / tilesize)][(int)((pos.x + 3) / tilesize)] = 'c';
+        //    coins.push_back(coin);
+        //}
+
+
+
+
 
 
 
@@ -1140,9 +1356,9 @@ bool Level2()
             //adding time + text and font
             //float deltafiretime = clock.restart().asSeconds();
             float dt = clock.restart().asSeconds();
-            Time elapsed = clock.getElapsedTime();
+            Time elapsed = timer.getElapsedTime();
             float timevalue = round(elapsed.asSeconds() * 100.0f) / 100.0f;
-            string stringn = to_string(timevalue);
+            string stringn = to_string(timevalue + prevTime);
             text.setString("Time: " + stringn);
             string lives1 = to_string(lives);
             text2.setString("Lives: " + lives1);
@@ -1165,14 +1381,23 @@ bool Level2()
                     ofstream level2("Level 2.txt");
                     level2 << highscore << endl;
                     level2 << playerscore << endl;
+                    level2 << lives << endl;
                     level2 << playerS.getPosition().x << endl;
                     level2 << playerS.getPosition().y << endl;
                     level2 << to_string(elapsed.asSeconds() + prevTime) << endl;
-                    for (int i = 0; i < 17; i++)
+                    for (int i = 0; i < r; i++)
                     {
-                        for (int j = 0; j < 17; j++)
+                        for (int j = 0; j < c; j++)
                         {
-                            level2 << arr[i][j];
+                            level2 << collectibles[i][j];
+                        }
+                        level2 << endl;
+                    }
+                    for (int i = 0; i < r; i++)
+                    {
+                        for (int j = 0; j < c; j++)
+                        {
+                            level2 << keyss[i][j];
                         }
                         level2 << endl;
                     }
@@ -1181,7 +1406,7 @@ bool Level2()
                     return false;
                 }
             }
-            
+
             //------------------------------------------------------------------------------
             //-----------------------------------------------------------------------------
             // Update fire effects logic 
@@ -1225,21 +1450,43 @@ bool Level2()
                 //----------------------------------------------------------------------------------
                 //----------------------------------------------------------------------------------
 
-                //collsion with coins 
-                for (auto& skullcoins : coins) {
-                    if (playerS.getGlobalBounds().intersects(skullcoins.getGlobalBounds())) {
-                        skullcoins.setPosition(-100, -100);
-                        playerscore += 100;
-                        soundcoin.play();
-                    }
+                ////collsion with coins 
+                //for (auto& skullcoins : coins) {
+                //    if (playerS.getGlobalBounds().intersects(skullcoins.getGlobalBounds()) &&
+                //        collectibles[(int)((skullcoins.getPosition().y + 3) / tilesize)][(int)((skullcoins.getPosition().x + 3) / tilesize)] == 'c')
+                //    {
+
+                //        collectibles[(int)((skullcoins.getPosition().y + 3) / tilesize)][(int)((skullcoins.getPosition().x + 3) / tilesize)] = 'a';
+                //        playerscore += 100;
+                //        soundcoin.play();
+                //        skullcoins.setPosition(-100, -100);
+                //    }
+                //}
+
+                int playerX = (playerS.getPosition().x + 3) / tilesize;
+                int playerY = (playerS.getPosition().y + 3) / tilesize;
+
+                if (collectibles[playerY][playerX] == 'c')
+                {
+                    playerscore += 100;
+                    collectibles[playerY][playerX] = 'a';
+                    soundcoin.play();
                 }
-                for (auto& key : keyss) {
+                else if (keyss[playerY][playerX] == 'k')
+                {
+                    keyss[playerY][playerX] = 'n';
+                    soundcollect.play();
+                    keys++;
+                }
+
+
+                /*for (auto& key : keyss) {
                     if (playerS.getGlobalBounds().intersects(key.getGlobalBounds())) {
                         key.setPosition(-100, -100);
                         keys++;
                         soundcollect.play();
                     }
-                }
+                }*/
 
 
                 //----------------------------------------------------------------------------------
@@ -1367,9 +1614,9 @@ bool Level2()
 
                                     //Re-initialize collectbles
 
-                                    for (int i = 0;i < 17;i++)
+                                    for (int i = 0; i < 17; i++)
                                     {
-                                        for (int j = 0;j < 29;j++)
+                                        for (int j = 0; j < 29; j++)
                                         {
                                             if (arr[i][j] == 'z')
                                             {
@@ -1527,8 +1774,19 @@ bool Level2()
             //-------------------------------------------------------------
             //-----------------------------------------------------------
             //all drawings 
-            MazeMaking(window, box, grass);
+            //MazeMaking(window, grass);
 
+            for (int i = 0; i < r; i++)
+            {
+                for (int j = 0; j < c; j++)
+                {
+                    window.draw(maze2[i][j]);
+                    if (arr[i][j] == 'a')
+                    {
+                        window.draw(box);
+                    }
+                }
+            }
 
             for (const auto& net : Spidernet) {
                 window.draw(net);
@@ -1549,12 +1807,43 @@ bool Level2()
                 }
 
             }
-            for (const auto& skullcoins : coins) {
-                window.draw(skullcoins);
+            /*for (const auto& skullcoins : coins) {
+
+                for (int i = 0; i < r; i++)
+                {
+                    for (int j = 0; j < c; j++)
+                    {
+                        if (collectibles[i][j] == 'c')
+                            window.draw(skullcoins);
+                    }
+                }
+            }*/
+
+            for (int i = 0;i < r;i++)
+            {
+                for (int j = 0;j < c;j++)
+                {
+                    if (collectibles[i][j] == 'c')
+                    {
+                        window.draw(Scoin[i][j]);
+                    }
+                }
             }
-            for (const auto& key : keyss) {
+
+            for (int i = 0;i < r;i++)
+            {
+                for (int j = 0;j < c;j++)
+                {
+                    if (keyss[i][j] == 'k')
+                    {
+                        window.draw(keyArr[i][j]);
+                    }
+                }
+            }
+
+            /*for (const auto& key : keyss) {
                 window.draw(key);
-            }
+            }*/
             //-------------------------------------------------------------
             //-------------------------------------------------------------
             //Ghost reappearence logic
@@ -1621,6 +1910,7 @@ bool Level2()
             }
             window.draw(text5);
             window.draw(playerS);
+
             window.display();
 
             //Pause game
@@ -1692,14 +1982,23 @@ bool Level2()
                             ofstream level2("Level 2.txt");
                             level2 << highscore << endl;
                             level2 << playerscore << endl;
+                            level2 << lives << endl;
                             level2 << playerS.getPosition().x << endl;
                             level2 << playerS.getPosition().y << endl;
                             level2 << to_string(elapsed.asSeconds() + prevTime) << endl;
-                            for (int i = 0; i < 17; i++)
+                            for (int i = 0; i < r; i++)
                             {
-                                for (int j = 0; j < 29; j++)
+                                for (int j = 0; j < c; j++)
                                 {
-                                    level2 << arr[i][j];
+                                    level2 << collectibles[i][j];
+                                }
+                                level2 << endl;
+                            }
+                            for (int i = 0; i < r; i++)
+                            {
+                                for (int j = 0; j < c; j++)
+                                {
+                                    level2 << keyss[i][j];
                                 }
                                 level2 << endl;
                             }
@@ -1718,7 +2017,7 @@ bool Level2()
                         else if (Keyboard::isKeyPressed(Keyboard::Key::R))
                         {
                             gameOver = false;
-                            lives = 3;
+                            lives = 2;
                             playerS.setPosition(0.f, 0.f);
                             timer.restart();
                             pause.close();
@@ -1728,13 +2027,24 @@ bool Level2()
 
                             //Re-initialize collectbles
 
-                            for (int i = 0;i < 17;i++)
+                            for (int i = 0; i < r; i++)
                             {
-                                for (int j = 0;j < 29;j++)
+                                for (int j = 0; j < c; j++)
                                 {
-                                    if (arr[i][j] == 'z')
+                                    if (collectibles[i][j] == 'a')
                                     {
-                                        arr[i][j] = 'f';
+                                        collectibles[i][j] = 'c';
+                                    }
+                                }
+                            }
+
+                            for (int i = 0; i < r; i++)
+                            {
+                                for (int j = 0; j < c; j++)
+                                {
+                                    if (keyss[i][j] == 'n')
+                                    {
+                                        keyss[i][j] = 'k';
                                     }
                                 }
                             }
@@ -1749,14 +2059,23 @@ bool Level2()
                             ofstream level2("Level 2.txt");
                             level2 << highscore << endl;
                             level2 << playerscore << endl;
+                            level2 << lives << endl;
                             level2 << playerS.getPosition().x << endl;
                             level2 << playerS.getPosition().y << endl;
                             level2 << to_string(elapsed.asSeconds() + prevTime) << endl;
-                            for (int i = 0; i < 17; i++)
+                            for (int i = 0; i < r; i++)
                             {
-                                for (int j = 0; j < 29; j++)
+                                for (int j = 0; j < c; j++)
                                 {
-                                    level2 << arr[i][j];
+                                    level2 << collectibles[i][j];
+                                }
+                                level2 << endl;
+                            }
+                            for (int i = 0; i < r; i++)
+                            {
+                                for (int j = 0; j < c; j++)
+                                {
+                                    level2 << keyss[i][j];
                                 }
                                 level2 << endl;
                             }
@@ -1769,6 +2088,7 @@ bool Level2()
                     }
 
                     if (shouldBreak == true)
+
                     {
                         break;
                     }
@@ -1790,7 +2110,7 @@ bool Level2()
 
 bool Level3()
 {
-    
+
 
     while (moveToMenu == true)
     {
@@ -1992,14 +2312,15 @@ bool Level3()
         if (resume3 == true)
         {
             levels3 >> score; // Load score
+            levels3 >> lives;
             levels3 >> startX; // Load player X position
             levels3 >> startY; // Load player Y position
             levels3 >> prevTime; // Load previous time
 
             // Load the maze array
-            for (int i = 0; i < 17; i++) 
+            for (int i = 0; i < 17; i++)
             {
-                for (int j = 0; j < 29; j++) 
+                for (int j = 0; j < 29; j++)
                 {
                     levels3 >> arr[i][j];
                 }
@@ -2028,9 +2349,9 @@ bool Level3()
                     level3 << player.getPosition().x << endl;
                     level3 << player.getPosition().y << endl;
                     level3 << to_string(time.asSeconds() + prevTime) << endl;
-                    for (int i = 0;i < 17;i++)
+                    for (int i = 0; i < 17; i++)
                     {
-                        for (int j = 0;j < 29;j++)
+                        for (int j = 0; j < 29; j++)
                         {
                             level3 << arr[i][j];
                         }
@@ -2049,6 +2370,7 @@ bool Level3()
                     ofstream level3("Level 3.txt");
                     level3 << highscore << endl;
                     level3 << score << endl;
+                    level3 << lives << endl;
                     level3 << player.getPosition().x << endl;
                     level3 << player.getPosition().y << endl;
                     level3 << to_string(time.asSeconds() + prevTime) << endl;
@@ -2067,11 +2389,14 @@ bool Level3()
             }
 
 
-            //Score
-            Text scoreT;
+            //Score and Lives
+            Text scoreT, livesT;
             scoreT.setFont(font);
             scoreT.setString("Your score is : " + to_string(score));
 
+            livesT.setFont(font);
+            livesT.setString("Lives : " + to_string(lives));
+            livesT.setPosition(500, 0);
 
             // Update animation for each flame
             if (animationClock.getElapsedTime() > frameDuration) {
@@ -2099,7 +2424,7 @@ bool Level3()
             Text timer;
             timer.setFont(font);
             timer.setString(to_string(time.asSeconds() + prevTime));
-            timer.setPosition(450.f, 0.f);
+            timer.setPosition(1000.f, 0.f);
 
 
 
@@ -2223,9 +2548,9 @@ bool Level3()
 
 
             //Player and fire trap collision
-            for (int i = 0;i < 17;i++)
+            for (int i = 0; i < 17; i++)
             {
-                for (int j = 0;j < 29;j++)
+                for (int j = 0; j < 29; j++)
                 {
                     if (thisTrap == 0 && arr[i][j] == 't' && ((player.getPosition().x + 20 > maze[i][j].getPosition().x) &&
                         (player.getPosition().x + 15 < maze[i][j].getPosition().x + 40) &&
@@ -2262,9 +2587,9 @@ bool Level3()
 
             if (spikes == false)
             {
-                for (int i = 0;i < 17;i++)
+                for (int i = 0; i < 17; i++)
                 {
-                    for (int j = 0;j < 29;j++)
+                    for (int j = 0; j < 29; j++)
                     {
                         if (arr[i][j] == 'g')
                             maze[i][j] = floor;
@@ -2275,9 +2600,9 @@ bool Level3()
 
             //Trigger and collision
 
-            for (int i = 0; i < 17;i++)
+            for (int i = 0; i < 17; i++)
             {
-                for (int j = 0;j < 29;j++)
+                for (int j = 0; j < 29; j++)
                 {
                     if (arr[i][j] == 'g')
                     {
@@ -2425,9 +2750,9 @@ bool Level3()
 
                         //Re-initialize collectbles
 
-                        for (int i = 0;i < 17;i++)
+                        for (int i = 0; i < 17; i++)
                         {
-                            for (int j = 0;j < 29;j++)
+                            for (int j = 0; j < 29; j++)
                             {
                                 if (arr[i][j] == 'z')
                                 {
@@ -2573,7 +2898,7 @@ bool Level3()
                 win.setPosition(Vector2i(-7, -33));
 
                 Sound winS, evilS;
-                SoundBuffer winB,evilB;
+                SoundBuffer winB, evilB;
                 winB.loadFromFile("audio/violin.mp3");
                 winS.setBuffer(winB);
                 evilB.loadFromFile("audio/evil.mp3");
@@ -2587,24 +2912,24 @@ bool Level3()
                 {
                     "YOU WON",
                     "You really thought you could win? How pathetic.",
-                    "I’ve watched you stumble through my maze.",
+                    "I?ve watched you stumble through my maze.",
                     "Clinging to the foolish belief that you could outsmart me.",
                     "But every step you took, every choice you made.",
                     "It all led here.",
                     "Right where I wanted you.",
-                    "You see, that’s the cruel truth you fail to grasp.",
+                    "You see, that?s the cruel truth you fail to grasp.",
                     "There was never any victory to claim.",
-                    "You’re not the hero of some grand tale.",
-                    " You’re a pawn, moved and discarded at my whim.",
+                    "You?re not the hero of some grand tale.",
+                    " You?re a pawn, moved and discarded at my whim.",
                     "You fought so hard, endured so much.",
                     "All for nothing.",
                     "And now, here you stand, at the edge of oblivion.",
                     "Staring into the void I created for you.",
-                    "This isn’t your story.",
+                    "This isn?t your story.",
                     "It never was.",
-                    "It’s mine.",
+                    "It?s mine.",
                     " and it ends when I decide.",
-                    "The truth is, the world won’t remember you.",
+                    "The truth is, the world won?t remember you.",
                     "No songs will be sung.",
                     "No statues will be raised.",
                     "Youll vanish",
@@ -2641,7 +2966,7 @@ bool Level3()
                         if (event.type == Event::Closed)
                             win.close();
                     }
-                    
+
                     if (dTime.asSeconds() > 3.5)
                     {
                         count++;
@@ -2693,6 +3018,7 @@ bool Level3()
             }
             gameplay.draw(timer);
             gameplay.draw(scoreT);
+            gameplay.draw(livesT);
             gameplay.draw(player);
             gameplay.display();
 
@@ -2765,6 +3091,7 @@ bool Level3()
                             ofstream level3("Level 3.txt");
                             level3 << highscore << endl;
                             level3 << score << endl;
+                            level3 << lives << endl;
                             level3 << player.getPosition().x << endl;
                             level3 << player.getPosition().y << endl;
                             level3 << to_string(time.asSeconds() + prevTime) << endl;
@@ -2802,9 +3129,9 @@ bool Level3()
 
                             //Re-initialize collectbles
 
-                            for (int i = 0;i < 17;i++)
+                            for (int i = 0; i < 17; i++)
                             {
-                                for (int j = 0;j < 29;j++)
+                                for (int j = 0; j < 29; j++)
                                 {
                                     if (arr[i][j] == 'z')
                                     {
@@ -2823,6 +3150,7 @@ bool Level3()
                             ofstream level3("Level 3.txt");
                             level3 << highscore << endl;
                             level3 << score << endl;
+                            level3 << lives << endl;
                             level3 << player.getPosition().x << endl;
                             level3 << player.getPosition().y << endl;
                             level3 << to_string(time.asSeconds() + prevTime) << endl;
@@ -2867,19 +3195,28 @@ int main()
     isStart = MainMenu();
     while (isStart == true)
     {
+        // Resuming from previous level
         if (resume1 == true)
         {
             isStart = Level1();
             if (isStart == true)
             {
-                isStart = Level3();
+                isStart = Level2();
+                if (isStart == true)
+                    isStart = Level3();
             }
         }
-        if (resume3 == true)
+        else if (resume2 == true)
+        {
+            isStart = Level2();
+            if (isStart == true)
+                isStart = Level3();
+        }
+        else if (resume3 == true)
         {
             isStart = Level3();
         }
-        else
+        else // Starting new game
         {
             isStart = Level1();
             if (isStart == true)
@@ -2890,5 +3227,6 @@ int main()
             }
         }
     }
+
     return 0;
 }

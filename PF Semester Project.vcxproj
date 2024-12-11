@@ -133,6 +133,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="edited.cpp" />
+    <ClCompile Include="L2.cpp" />
     <ClCompile Include="Level 1.cpp" />
     <ClCompile Include="Level 3.cpp" />
     <ClCompile Include="Shadow Runners.cpp" />
